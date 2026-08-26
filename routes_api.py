@@ -9,7 +9,13 @@ import models
 import schemas
 import auth
 from services import send_emergency_sms, fetch_nearby_resources, fetch_weather_safety
-from mongo_db import sync_user_to_mongo, sync_medical_report_to_mongo, sync_sos_alert_to_mongo, get_mongo_status
+try:
+    from mongo_db import sync_user_to_mongo, sync_medical_report_to_mongo, sync_sos_alert_to_mongo, get_mongo_status
+except ImportError:
+    def sync_user_to_mongo(user_data): pass
+    def sync_medical_report_to_mongo(user_id, user_name, med_data): pass
+    def sync_sos_alert_to_mongo(alert_data): pass
+    def get_mongo_status(): return {"status": "DISCONNECTED", "note": "mongo_db module optional"}
 
 router = APIRouter(prefix="/api")
 

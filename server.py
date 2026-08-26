@@ -30,11 +30,15 @@ app.include_router(api_router)
 
 # Mount Static Assets (CSS, JS, Static Files)
 public_dir = os.path.join(os.path.dirname(__file__), "public")
-if not os.path.exists(public_dir):
-    os.makedirs(public_dir)
+css_dir = os.path.join(public_dir, "css")
+js_dir = os.path.join(public_dir, "js")
 
-app.mount("/css", StaticFiles(directory=os.path.join(public_dir, "css")), name="css")
-app.mount("/js", StaticFiles(directory=os.path.join(public_dir, "js")), name="js")
+os.makedirs(public_dir, exist_ok=True)
+os.makedirs(css_dir, exist_ok=True)
+os.makedirs(js_dir, exist_ok=True)
+
+app.mount("/css", StaticFiles(directory=css_dir), name="css")
+app.mount("/js", StaticFiles(directory=js_dir), name="js")
 app.mount("/static", StaticFiles(directory=public_dir), name="static")
 
 @app.get("/")
