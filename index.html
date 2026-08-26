@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeReached – Smart Emergency Safety & Assistance Platform</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS for Maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/style.css?v=3.0">
+</head>
+<body>
+
+  <!-- ==========================================
+       1. AUTHENTICATION VIEW (FIRST PAGE)
+       ========================================== -->
+  <div id="auth-view" class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-brand">
+          <div class="auth-brand-icon">🛡️</div>
+          <span class="auth-brand-title">SafeReached</span>
+        </div>
+        <p class="auth-subtitle">Smart Emergency Safety & Assistance Platform</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button id="tab-login-btn" class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+        <button id="tab-register-btn" class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+      </div>
+
+      <!-- Alert Notification Banner -->
+      <div id="auth-alert" class="alert-box alert-error" style="display: none;"></div>
+
+      <!-- LOGIN FORM -->
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email Address</label>
+          <input type="email" id="login-email" class="form-input" placeholder="name@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-primary" style="margin-top: 1rem;">
+          <span>Login to SafeReached</span> ➔
+        </button>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form id="register-form" onsubmit="handleRegister(event)" style="display: none;">
+        <div class="form-group">
+          <label class="form-label" for="reg-name">Full Name</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="e.g. Ashit Sharma" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-email">Email Address</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="name@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-phone">Phone Number</label>
+          <input type="tel" id="reg-phone" class="form-input" placeholder="+91 9876543210" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-password">Password</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="At least 6 characters" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-confirm-password">Confirm Password</label>
+          <input type="password" id="reg-confirm-password" class="form-input" placeholder="Re-enter password" required>
+        </div>
+        <button type="submit" class="btn-primary" style="margin-top: 1rem;">
+          <span>Create Account</span> ➔
+        </button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       2. MAIN DASHBOARD APP CONTAINER
+       ========================================== -->
+  <div id="app-view" class="app-container" style="display: none;">
+    
+    <!-- FIXED LEFT SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-icon">🛡️</div>
+        <div class="sidebar-logo-text">SafeReached</div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item active" data-module="dashboard" onclick="navigateToModule('dashboard')">
+          <span class="nav-icon">🏠</span> <span>Dashboard</span>
+        </div>
+        <div class="nav-item" data-module="share-location" onclick="navigateToModule('share-location')">
+          <span class="nav-icon">📍</span> <span>Share Location</span>
+        </div>
+        <div class="nav-item" data-module="sos-alert" onclick="navigateToModule('sos-alert')">
+          <span class="nav-icon">🚨</span> <span>SOS Alert</span>
+        </div>
+        <div class="nav-item" data-module="nearby-resources" onclick="navigateToModule('nearby-resources')">
+          <span class="nav-icon">🏥</span> <span>Nearby Resources</span>
+        </div>
+        <div class="nav-item" data-module="helplines" onclick="navigateToModule('helplines')">
+          <span class="nav-icon">📞</span> <span>Emergency Helplines</span>
+        </div>
+        <div class="nav-item" data-module="medical-profile" onclick="navigateToModule('medical-profile')">
+          <span class="nav-icon">🩺</span> <span>Medical Profile</span>
+        </div>
+        <div class="nav-item" data-module="safety-tips" onclick="navigateToModule('safety-tips')">
+          <span class="nav-icon">🛡️</span> <span>Safety Tips</span>
+        </div>
+        <div class="nav-item" data-module="weather" onclick="navigateToModule('weather')">
+          <span class="nav-icon">⛅</span> <span>Weather Safety</span>
+        </div>
+        <div class="nav-item" data-module="settings" onclick="navigateToModule('settings')">
+          <span class="nav-icon">⚙️</span> <span>Profile / Settings</span>
+        </div>
+        <div class="nav-item" style="margin-top: 2rem; color: #E74C3C;" onclick="handleLogout()">
+          <span class="nav-icon">🚪</span> <span>Logout</span>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <div class="main-wrapper">
+      
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+          
+          <!-- GOOGLE TRANSLATE GLOBAL LANGUAGE SELECTOR -->
+          <div class="translate-widget-container">
+            <span class="translate-label">🌐 Language:</span>
+            <div id="google_translate_element"></div>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- LIGHT/DARK THEME TOGGLE BUTTON -->
+          <button id="theme-toggle-btn" class="btn-primary" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.88rem; background: var(--color-deep-sage);" onclick="toggleTheme()">
+            🌙 Dark Mode
+          </button>
+
+          <button class="sos-badge-btn" onclick="startSOSCountdown()">
+            ⚡ SOS TRIGGER
+          </button>
+
+          <div class="user-badge">
+            <div id="user-avatar" class="user-avatar">U</div>
+            <span id="user-display-name" class="user-name">User</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT AREA CONTAINING SEPARATE MODULES -->
+      <main class="content-area">
+
+        <!-- MODULE 1: DASHBOARD HOME -->
+        <section id="module-dashboard" class="module-view">
+          <img src="/banner.jpg" alt="SafeReached Hero Banner" class="hero-graphic-banner">
+          <div class="module-header">
+            <div>
+              <h1 class="module-title">Emergency Command Dashboard</h1>
+              <p class="module-subtitle">Welcome back, <span id="dash-welcome-name">User</span>. Your safety monitor is active.</p>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom: 1.5rem;">
+            <!-- SOS QUICK TRIGGER CARD -->
+            <div class="sos-trigger-card" style="padding: 1.5rem; margin-bottom: 0;">
+              <h2 class="sos-trigger-title" style="font-size: 1.4rem;">EMERGENCY ASSISTANCE</h2>
+              <p style="font-size: 0.85rem; opacity: 0.9; margin: 0.3rem 0 0.6rem 0;">
+                Press below to broadcast your live GPS location &amp; emergency alert message.
+              </p>
+              <button class="big-sos-btn" style="width: 105px; height: 105px; font-size: 1.5rem; margin: 0.6rem auto;" onclick="startSOSCountdown()">SOS</button>
+              <p style="font-size: 0.78rem; opacity: 0.8;">Includes 5-sec safety countdown.</p>
+            </div>
+
+            <!-- LIVE WEATHER DETECTOR SUMMARY CARD -->
+            <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                  <h3 style="font-size: 1.1rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <span id="dash-w-icon">⛅</span> Weather Safety
+                  </h3>
+                  <span style="font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 10px; background: var(--color-parchment); color: var(--color-charcoal);">Live GPS</span>
+                </div>
+                
+                <div style="display: flex; align-items: baseline; gap: 0.6rem; margin: 0.4rem 0;">
+                  <span id="dash-w-temp" style="font-family: var(--font-heading); font-size: 2.1rem; font-weight: 800; color: var(--color-charcoal);">--°C</span>
+                  <span id="dash-w-cond" style="font-weight: 600; color: var(--color-deep-sage);">Detecting...</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; text-align: center; background: var(--color-parchment); padding: 0.5rem; border-radius: 8px; margin: 0.5rem 0;">
+                  <div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Rain %</div>
+                    <strong id="dash-w-rain" style="font-size: 0.88rem;">--%</strong>
+                  </div>
+                  <div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Humidity</div>
+                    <strong id="dash-w-humid" style="font-size: 0.88rem;">--%</strong>
+                  </div>
+                  <div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">UV Index</div>
+                    <strong id="dash-w-uv" style="font-size: 0.88rem;">--</strong>
+                  </div>
+                </div>
+
+                <p id="dash-w-msg" style="font-size: 0.8rem; color: var(--color-charcoal); line-height: 1.35; background: #FFF; padding: 0.4rem 0.6rem; border-left: 3px solid var(--color-deep-sage); border-radius: 4px;">
+                  Updating weather safety guidance...
+                </p>
+              </div>
+
+              <button class="btn-primary" style="margin-top: 0.6rem; background: var(--color-deep-sage); padding: 0.45rem; font-size: 0.82rem;" onclick="navigateToModule('weather')">
+                View Full Weather Report ➔
+              </button>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <!-- CURRENT LOCATION QUICK STATUS -->
+            <div class="card">
+              <h3 style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                📍 Current GPS Location
+              </h3>
+              <p id="dash-location-status" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">
+                Acquiring GPS coordinates...
+              </p>
+              <div style="display: flex; gap: 0.75rem;">
+                <button class="btn-primary" style="flex: 1; padding: 0.65rem;" onclick="navigateToModule('share-location')">
+                  Share Live Location
+                </button>
+                <button class="btn-primary" style="flex: 1; background: var(--color-deep-sage); padding: 0.65rem;" onclick="refreshUserLocation()">
+                  Refresh GPS
+                </button>
+              </div>
+            </div>
+
+            <!-- EMERGENCY CONTACTS SUMMARY -->
+            <div class="card">
+              <h3 style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                📞 SOS Emergency Contacts
+              </h3>
+              <div id="dash-contacts-list" style="margin-bottom: 1rem;">
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Loading contacts...</p>
+              </div>
+              <button class="btn-primary" style="width: 100%; background: var(--color-charcoal); padding: 0.65rem;" onclick="navigateToModule('sos-alert')">
+                Manage Contacts &amp; Custom Message
+              </button>
+            </div>
+          </div>
+
+          <!-- QUICK CATEGORY SHORTCUTS -->
+          <h3 style="margin: 2rem 0 1rem 0;">Quick Emergency Services</h3>
+          <div class="grid-3">
+            <div class="card" style="cursor: pointer;" onclick="navigateToModule('nearby-resources')">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏥</div>
+              <h4>Nearby Hospitals</h4>
+              <p style="font-size: 0.88rem; color: var(--text-muted);">Find emergency wards within 5 km</p>
+            </div>
+            <div class="card" style="cursor: pointer;" onclick="navigateToModule('nearby-resources')">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🚓</div>
+              <h4>Police Stations</h4>
+              <p style="font-size: 0.88rem; color: var(--text-muted);">Locate nearest police precincts</p>
+            </div>
+            <div class="card" style="cursor: pointer;" onclick="navigateToModule('helplines')">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">📞</div>
+              <h4>Emergency Helplines</h4>
+              <p style="font-size: 0.88rem; color: var(--text-muted);">One-tap official helpline numbers</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- MODULE 2: SHARE LOCATION -->
+        <section id="module-share-location" class="module-view" style="display: none;">
+          <div class="module-header">
+            <div>
+              <h1 class="module-title">Share Current Location</h1>
+              <p class="module-subtitle">Detect your real-time GPS location and share a map link with family or emergency services.</p>
+            </div>
+            <button class="btn-primary" style="width: auto; background: var(--color-deep-sage);" onclick="refreshUserLocation()">
+              🔄 Update GPS Location
+            </button>
+          </div>
+
+          <div class="grid-2" style="margin-bottom: 1.5rem;">
+            <div class="card">
+              <h3>📍 Location Coordinates</h3>
+              <p id="loc-coords-readout" style="font-size: 1.1rem; font-weight: 700; color: var(--color-deep-sage); margin: 0.8rem 0;">
+                Latitude: -- | Longitude: --
+              </p>
+              <p id="loc-address-readout" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">
+                Address: Detecting precise location...
+              </p>
+
+              <div class="form-group">
+                <label class="form-label">Shareable Location Map Link</label>
+                <input type="text" id="share-link-input" class="form-input" readonly value="Generating link...">
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem;">
+                <button class="btn-primary" onclick="copyLocationLink()">📋 Copy Link</button>
+                <button class="btn-primary" style="background: #25D366;" onclick="shareViaWhatsApp()">💬 WhatsApp</button>
+              </div>
+            </div>
+
+            <!-- INTERACTIVE MAP CONTAINER -->
+            <div class="card" style="padding: 0.75rem;">
+              <div id="location-map" class="map-container"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MODULE 3: SOS ALERT -->
+        <section id="module-sos-alert" class="module-view" style="display: none;">
+          <img src="/sos_banner.jpg" alt="SOS Emergency Alert Banner" class="hero-graphic-banner">
+          <div class="module-header">
+            <div>
+              <h1 class="module-title">SOS Alert Module</h1>
+              <p class="module-subtitle">Manage trusted contacts, edit your custom alert message, and dispatch emergency alerts.</p>
+            </div>
+          </div>
+
+          <div class="sos-trigger-card">
+            <h2 class="sos-trigger-title">ACTIVATE EMERGENCY SOS</h2>
+            <div class="sos-beacon-wrapper">
+              <div class="radar-ring radar-ring-1"></div>
+              <div class="radar-ring radar-ring-2"></div>
+              <div class="radar-ring radar-ring-3"></div>
+              <button class="big-sos-btn" style="position: relative; z-index: 2;" onclick="startSOSCountdown()">SOS</button>
+            </div>
+            <p>Will send your alert message &amp; live location link to all enabled contacts.</p>
+          </div>
+
+          <div class="grid-2">
+            <!-- EMERGENCY CONTACTS MANAGER -->
+            <div class="card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3>Emergency Contacts</h3>
+                <button class="btn-primary" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.85rem;" onclick="openAddContactModal()">
+                  + Add Contact
+                </button>
+              </div>
+              <div id="sos-contacts-container">
+                <!-- Contacts rendered here -->
+              </div>
+            </div>
+
+            <!-- CUSTOM MESSAGE EDITOR -->
+            <div class="card">
+              <h3>Custom Emergency Message</h3>
+              <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1rem;">
+                This custom message will be sent along with your live Google Maps location link when SOS is triggered.
+              </p>
+              <form onsubmit="handleSaveCustomMessage(event)">
+                <div class="form-group">
+                  <textarea id="custom-sos-text" class="form-textarea" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="background: var(--color-deep-sage);">
+                  💾 Save Custom Message
+                </button>
+              </form>
+
+              <h4 style="margin: 1.5rem 0 0.8rem 0;">Recent Alert History</h4>
+              <div id="sos-history-list" style="max-height: 200px; overflow-y: auto;">
+                <!-- History items -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MODULE 4: NEARBY RESOURCES -->
+        <section id="module-nearby-resources" class="module-view" style="display: none;">
+          <div class="module-header">
+            <div>
+              <h1 class="module-title">Nearby Emergency &amp; Utility Resources</h1>
+              <p class="module-subtitle">Auto-detecting essential services within a 5 km radius of your GPS location.</p>
+            </div>
+            <button class="btn-primary" style="width: auto; background: var(--color-deep-sage);" onclick="refreshNearbyResources()">
+              🔄 Refresh Nearby Search
+            </button>
+          </div>
+
+          <!-- CATEGORY FILTER PILLS -->
+          <div class="category-pills">
+            <button class="category-pill active" data-cat="hospitals" onclick="filterNearbyCategory('hospitals', this)">🏥 Hospitals</button>
+            <button class="category-pill" data-cat="police" onclick="filterNearbyCategory('police', this)">🚓 Police Stations</button>
+            <button class="category-pill" data-cat="fire_stations" onclick="filterNearbyCategory('fire_stations', this)">🚒 Fire Stations</button>
+            <button class="category-pill" data-cat="pharmacies" onclick="filterNearbyCategory('pharmacies', this)">💊 Pharmacies</button>
+            <button class="category-pill" data-cat="petrol_pumps" onclick="filterNearbyCategory('petrol_pumps', this)">⛽ Petrol Pumps</button>
+            <button class="category-pill" data-cat="washrooms" onclick="filterNearbyCategory('washrooms', this)">🚻 Washrooms</button>
+            <button class="category-pill" data-cat="blood_banks" onclick="filterNearbyCategory('blood_banks', this)">🩸 Blood Banks</button>
+            <button class="category-pill" data-cat="atms" onclick="filterNearbyCategory('atms', this)">🏧 ATMs</button>
+            <button class="category-pill" data-cat="accommodation" onclick="filterNearbyCategory('accommodation', this)">🏨 Emergency Stay</button>
+            <button class="category-pill" data-cat="ev_charging" onclick="filterNearbyCategory('ev_charging', this)">🔌 EV Charging</button>
+          </div>
+
+          <div class="grid-2">
+            <!-- RESOURCE CARDS LIST -->
+            <div>
+              <div id="nearby-results-list">
+                <!-- Cards populated dynamically -->
+              </div>
+            </div>
+
+            <!-- INTERACTIVE MAP -->
+            <div class="card" style="padding: 0.75rem;">
+              <div id="nearby-map" class="map-container"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MODULE 5: EMERGENCY HELPLINES -->
+        <section id="module-helplines" class="module-view" style="display: none;">
+          <div class="module-header">
+            <div>
+              <h1 class="module-title">Emergency Helpline Numbers</h1>
+              <p class="module-subtitle">Official verified public emergency, medical, and rescue helplines for India.</p>
+            </div>
+          </div>
+
+          <div class="form-group" style="max-width: 450px;">
+            <input type="text" id="helpline-search-input" class="form-input" placeholder="🔍 Search helplines (e.g. Police, Ambulance, Fire, Women)..." onkeyup="filterHelplines()">
+          </div>
+
+          <div id="helplines-grid" class="grid-2">
+            <!-- Helpline cards -->
+          </div>
+        </section>
+
+        <!-- MODULE 6: EMERGENCY MEDICAL PROFILE -->
+        <section id="module-medical-profile" class="module-view" style="display: none;">
+          <img src="/medical_banner.jpg" alt="Emergency Medical Profile Banner" class="hero-graphic-banner">
+          <div class="module-header">
+            <div>
+              <h1 class="module-title">Emergency Medical Profile</h1>
+              <p class="module-subtitle">Store critical health information to assist first responders and hospitals during emergencies.</p>
+            </div>
+            <button class="btn-primary" style="width: auto; background: var(--color-sos-red);" onclick="openShareMedicalModal()">
+              🏥 Share Profile with Hospital
+            </button>
+          </div>
+
+          <div class="card" style="max-width: 800px; margin: 0 auto;">
+            <form onsubmit="handleSaveMedicalProfile(event)">
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" id="med-full-name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Age / Date of Birth</label>
+                  <input type="text" id="med-age-dob" class="form-input" placeholder="e.g. 28 Yrs / 15-08-1998">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Blood Group</label>
+                  <select id="med-blood-group" class="form-select">
+                    <option value="">Select Blood Group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Emergency Phone Contact</label>
+                  <input type="tel" id="med-emergency-contact" class="form-input" placeholder="+91 9876543210">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Known Allergies (Food, Medicines, Latex)</label>
+                <input type="text" id="med-allergies" class="form-input" placeholder="e.g. Penicillin, Peanuts, None">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Existing Medical Conditions / Illnesses</label>
+                <input type="text" id="med-conditions" class="form-input" placeholder="e.g. Asthma, Diabetes, Hypertension, None">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Current Daily Medications</label>
+                <input type="text" id="med-medications" class="form-input" placeholder="e.g. Inhaler, Insulin, None">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Preferred Doctor / Primary Hospital</label>
+                <input type="text" id="med-doctor-info" class="form-input" placeholder="e.g. Dr. Verma (City Hospital)">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Additional Emergency Medical Notes</label>
+                <textarea id="med-notes" class="form-textarea" rows="3" placeholder="Any vital information for paramedics..."></textarea>
+              </div>
+
+              <button type="submit" class="btn-primary" style="background: var(--color-charcoal);">
+                💾 Save Medical Profile
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- MODULE 7: SAFETY TIPS -->
+        <section id="module-safety-tips" class="module-view" style="display: none;">
+          <div class="module-header">
+            <div>
+              <h1 class="module-title">Safety Guidance &amp; Emergency Tips</h1>
+              <p class="module-subtitle">Essential preparedness and response guidelines for emergency situations.</p>
+            </div>
+          </div>
+
+          <div id="safety-tips-container">
+            <!-- Categorized Safety Cards rendered here -->
+          </div>
+        </section>
+
+        <!-- MODULE 8: WEATHER SAFETY DETECTOR -->
+        <section id="module-weather" class="module-view" style="display: none;">
+          <div class="module-header">
+            <div>
+              <h1 class="module-title">Live Weather Safety Detector</h1>
+              <p class="module-subtitle">Real-time GPS weather metrics, precipitation chance, humidity, UV radiation risk, and safety advisories.</p>
+            </div>
+            <button class="btn-primary" style="width: auto; background: var(--color-deep-sage);" onclick="refreshWeatherDetector()">
+              🔄 Refresh Weather Data
+            </button>
+          </div>
+
+          <!-- WEATHER SAFETY ADVISORY BANNER -->
+          <div id="weather-advisory-box" class="card" style="background: linear-gradient(135deg, #2D2536 0%, #3D3349 100%); color: #FFF; margin-bottom: 1.5rem; border: none;">
+            <div style="display: flex; align-items: flex-start; gap: 1rem;">
+              <div style="font-size: 2.5rem;" id="weather-adv-icon">⛅</div>
+              <div>
+                <h3 style="color: #FFF; font-size: 1.2rem; margin-bottom: 0.3rem;">Safety Advisory for Your Current Location</h3>
+                <p id="weather-adv-text" style="font-size: 0.95rem; opacity: 0.95; line-height: 1.5;">
+                  Detecting real-time weather risks...
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-bottom: 1.5rem;">
+            <!-- TEMPERATURE CARD -->
+            <div class="card" style="text-align: center;">
+              <div style="font-size: 2.5rem; margin-bottom: 0.3rem;" id="full-w-icon">🌡️</div>
+              <div style="font-size: 0.82rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Temperature</div>
+              <div id="full-w-temp" style="font-family: var(--font-heading); font-size: 2.4rem; font-weight: 800; color: var(--color-charcoal); margin: 0.2rem 0;">--°C</div>
+              <div id="full-w-cond" style="font-weight: 600; color: var(--color-deep-sage);">--</div>
+            </div>
+
+            <!-- CHANCE OF RAIN CARD -->
+            <div class="card" style="text-align: center;">
+              <div style="font-size: 2.5rem; margin-bottom: 0.3rem;">🌧️</div>
+              <div style="font-size: 0.82rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Chance of Rain</div>
+              <div id="full-w-rain" style="font-family: var(--font-heading); font-size: 2.4rem; font-weight: 800; color: var(--color-charcoal); margin: 0.2rem 0;">--%</div>
+              <div style="background: var(--color-parchment); height: 8px; border-radius: 4px; overflow: hidden; width: 80%; margin: 0.4rem auto 0 auto;">
+                <div id="full-w-rain-bar" style="background: var(--color-steel); height: 100%; width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- HUMIDITY METRIC CARD -->
+            <div class="card" style="text-align: center;">
+              <div style="font-size: 2.5rem; margin-bottom: 0.3rem;">💧</div>
+              <div style="font-size: 0.82rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Relative Humidity</div>
+              <div id="full-w-humid" style="font-family: var(--font-heading); font-size: 2.4rem; font-weight: 800; color: var(--color-charcoal); margin: 0.2rem 0;">--%</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted);">Moisture Content</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <!-- UV INDEX CARD -->
+            <div class="card">
+              <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                ☀️ UV Index Radiation Level
+              </h3>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem;">
+                <span id="full-w-uv-val" style="font-family: var(--font-heading); font-size: 2rem; font-weight: 800; color: var(--color-charcoal);">--</span>
+                <span id="full-w-uv-badge" style="font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 12px; background: #FFF2D6; color: #D68910;">-- Risk</span>
+              </div>
+              <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.4;">
+                UV radiation levels dictate sun protection requirements for outdoor travel. High levels require UV protection, hats, and sunscreen.
+              </p>
+            </div>
+
+            <!-- WIND SPEED CARD -->
+            <div class="card">
+              <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                💨 Wind Speed &amp; Air Movement
+              </h3>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem;">
+                <span id="full-w-wind" style="font-family: var(--font-heading); font-size: 2rem; font-weight: 800; color: var(--color-charcoal);">-- km/h</span>
+                <span style="font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 12px; background: var(--color-parchment); color: var(--color-charcoal);">Surface Wind</span>
+              </div>
+              <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.4;">
+                Wind speed impacts high-speed driving, motorcycle stability, and outdoor hazard conditions.
+              </p>
+            </div>
+          </div>
+
+          <!-- WEATHER SAFETY PRECAUTIONS & ACTION STEPS -->
+          <h3 style="margin: 2rem 0 1rem 0;">🛡️ Weather Safety Precautions &amp; Travel Guidance</h3>
+          <div id="weather-safety-precautions" class="grid-2">
+            <!-- Dynamic precautions rendered here -->
+          </div>
+        </section>
+
+        <!-- MODULE 9: PROFILE / SETTINGS -->
+        <section id="module-settings" class="module-view" style="display: none;">
+          <div class="module-header">
+            <div>
+              <h1 class="module-title">Profile &amp; Security Settings</h1>
+              <p class="module-subtitle">Manage account details, profile picture, theme appearance, and privacy security controls.</p>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom: 1.5rem;">
+            <!-- PROFILE DETAILS & PHOTO UPDATE CARD -->
+            <div class="card">
+              <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                👤 Edit Profile Details &amp; Photo
+              </h3>
+              
+              <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem; background: var(--color-parchment); padding: 0.85rem; border-radius: var(--radius-sm);">
+                <div id="profile-avatar-preview" class="user-avatar" style="width: 54px; height: 54px; font-size: 1.4rem;">U</div>
+                <div>
+                  <div style="font-weight: 700; font-size: 1rem;" id="sett-name-heading">User</div>
+                  <div style="font-size: 0.82rem; color: var(--text-muted);">Select avatar preset or enter custom image URL</div>
+                </div>
+              </div>
+
+              <form onsubmit="handleUpdateProfile(event)">
+                <div class="form-group">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" id="sett-name-input" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email Address</label>
+                  <input type="email" id="sett-email-input" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Phone Number</label>
+                  <input type="tel" id="sett-phone-input" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Profile Avatar Emoji / Image URL</label>
+                  <input type="text" id="sett-avatar-input" class="form-input" placeholder="e.g. 🛡️, 👤, 🩺, or https://...">
+                </div>
+                <button type="submit" class="btn-primary" style="background: var(--color-charcoal);">
+                  💾 Save Profile Changes
+                </button>
+              </form>
+            </div>
+
+            <!-- APPEARANCE & THEME CARD -->
+            <div class="card">
+              <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                🎨 Theme &amp; Appearance Settings
+              </h3>
+              <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">
+                Switch between Light Mode and Dark Mode for high visibility during emergency night travel.
+              </p>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div id="theme-card-light" class="card" style="cursor: pointer; text-align: center; border: 2px solid var(--color-deep-sage); padding: 1rem;" onclick="setTheme('light')">
+                  <div style="font-size: 2rem; margin-bottom: 0.3rem;">☀️</div>
+                  <h4 style="font-size: 0.95rem;">Light Mode</h4>
+                  <div style="font-size: 0.78rem; color: var(--text-muted);">High Contrast Parchment</div>
+                </div>
+
+                <div id="theme-card-dark" class="card" style="cursor: pointer; text-align: center; border: 1.5px solid var(--border-light); padding: 1rem;" onclick="setTheme('dark')">
+                  <div style="font-size: 2rem; margin-bottom: 0.3rem;">🌙</div>
+                  <h4 style="font-size: 0.95rem;">Dark Mode</h4>
+                  <div style="font-size: 0.78rem; color: var(--text-muted);">Sleek Night Theme</div>
+                </div>
+              </div>
+
+              <div style="background: var(--color-parchment); padding: 0.8rem; border-radius: var(--radius-sm); font-size: 0.85rem;">
+                Current Active Theme: <strong id="current-theme-label">Light Mode</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECURITY & PRIVACY CARD SECTION -->
+          <div class="grid-2">
+            <!-- SECURITY CONTROLS -->
+            <div class="card">
+              <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                🔒 Account Password Security
+              </h3>
+              <form onsubmit="handleChangePassword(event)">
+                <div class="form-group">
+                  <label class="form-label">Current Password</label>
+                  <input type="password" id="sett-old-pwd" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">New Password</label>
+                  <input type="password" id="sett-new-pwd" class="form-input" required minlength="6">
+                </div>
+                <button type="submit" class="btn-primary">Update Security Password</button>
+              </form>
+            </div>
+
+            <!-- PRIVACY CONTROLS -->
+            <div class="card">
+              <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                🛡️ Security &amp; Privacy Preferences
+              </h3>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light);">
+                <div>
+                  <strong style="font-size: 0.9rem;">Two-Factor Authentication (2FA)</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Additional OTP verification layer for logins</div>
+                </div>
+                <input type="checkbox" id="priv-2fa-toggle" checked style="width: 18px; height: 18px;">
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light);">
+                <div>
+                  <strong style="font-size: 0.9rem;">GPS Location Access Permission</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Auto-detect GPS coordinates for SOS &amp; weather</div>
+                </div>
+                <input type="checkbox" id="priv-gps-toggle" checked style="width: 18px; height: 18px;">
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light);">
+                <div>
+                  <strong style="font-size: 0.9rem;">Medical Profile Encryption</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Encrypt confidential medical data at rest</div>
+                </div>
+                <input type="checkbox" id="priv-med-toggle" checked style="width: 18px; height: 18px;">
+              </div>
+
+              <div style="margin-top: 1rem; background: var(--color-parchment); padding: 0.65rem; border-radius: 6px; font-size: 0.8rem; color: var(--text-muted);">
+                🔒 Privacy Status: SafeReached never exposes your private medical data publicly without explicit user consent.
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       MODALS, OVERLAYS & FLOATING AI CHATBOT
+       ========================================== -->
+
+  <!-- FLOATING AI ASSISTANT CHATBOT FAB -->
+  <div id="chatbot-fab" class="chatbot-fab" onclick="toggleChatbot()">
+    <span>🤖</span> SafeReached Assistant
+  </div>
+
+  <div id="chatbot-window" class="chatbot-window" style="display: none;">
+    <div class="chatbot-header">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div style="width: 32px; height: 32px; background: var(--color-sage); color: var(--color-charcoal); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">🤖</div>
+        <div>
+          <div style="font-weight: 700; font-size: 0.95rem;">SafeReached Assistant</div>
+          <div style="font-size: 0.75rem; opacity: 0.85;">Emergency Safety AI</div>
+        </div>
+      </div>
+      <button onclick="toggleChatbot()" style="background: none; border: none; color: #FFF; font-size: 1.2rem; cursor: pointer;">✕</button>
+    </div>
+
+    <div id="chatbot-messages" class="chatbot-messages">
+      <div class="chat-msg bot">
+        Hello! I am your <strong>SafeReached Assistant</strong> 🛡️. How can I help you with SOS alerts, location sharing, nearby hospitals, emergency numbers, or weather safety?
+      </div>
+    </div>
+
+    <div class="chatbot-chips">
+      <button class="chip-btn" onclick="sendQuickChip('How does SOS work?')">🚨 SOS Alert</button>
+      <button class="chip-btn" onclick="sendQuickChip('How to share location?')">📍 Share Location</button>
+      <button class="chip-btn" onclick="sendQuickChip('Find nearby hospitals')">🏥 Hospitals</button>
+      <button class="chip-btn" onclick="sendQuickChip('Emergency helpline numbers')">📞 Helplines</button>
+    </div>
+
+    <form onsubmit="handleSendChatMessage(event)" class="chatbot-input-area">
+      <input type="text" id="chat-input" class="form-input" placeholder="Ask a safety question..." required style="padding: 0.55rem 0.8rem; font-size: 0.88rem;">
+      <button type="submit" class="btn-primary" style="width: auto; padding: 0.55rem 0.9rem; font-size: 0.88rem; background: var(--color-charcoal);">Send</button>
+    </form>
+  </div>
+
+  <!-- 1. SOS COUNTDOWN OVERLAY -->
+  <div id="sos-countdown-modal" class="countdown-modal-overlay" style="display: none;">
+    <div class="countdown-modal">
+      <h2 style="color: var(--color-sos-red);">🚨 SOS ACTIVATED</h2>
+      <p style="color: var(--text-muted);">Transmitting emergency alert and location in:</p>
+      <div id="countdown-timer" class="countdown-number">5</div>
+      <button class="btn-primary" style="background: var(--color-charcoal);" onclick="cancelSOSCountdown()">
+        ❌ Cancel SOS Alert
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. ADD/EDIT CONTACT MODAL -->
+  <div id="contact-modal-overlay" class="countdown-modal-overlay" style="display: none;">
+    <div class="countdown-modal" style="text-align: left; max-width: 480px;">
+      <h3 id="contact-modal-title">Add Emergency Contact</h3>
+      <form onsubmit="handleSaveContactForm(event)" style="margin-top: 1rem;">
+        <input type="hidden" id="modal-contact-id">
+        <div class="form-group">
+          <label class="form-label">Contact Name</label>
+          <input type="text" id="modal-contact-name" class="form-input" required placeholder="e.g. Raj Sharma">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" id="modal-contact-phone" class="form-input" required placeholder="+91 9876543210">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Relationship</label>
+          <input type="text" id="modal-contact-rel" class="form-input" required placeholder="e.g. Father, Sister, Spouse">
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+          <input type="checkbox" id="modal-contact-enabled" checked>
+          <label for="modal-contact-enabled" style="font-size: 0.9rem;">Enable for SOS Alerts</label>
+        </div>
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="submit" class="btn-primary">Save Contact</button>
+          <button type="button" class="btn-primary" style="background: #95A5A6;" onclick="closeContactModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. SHARE MEDICAL PROFILE MODAL -->
+  <div id="share-medical-modal" class="countdown-modal-overlay" style="display: none;">
+    <div class="countdown-modal" style="text-align: left; max-width: 500px;">
+      <h3>🏥 Share Medical Profile with Hospital</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1rem;">
+        Transmit essential medical details (allergies, blood group, emergency contact) to a nearby hospital prior to arrival.
+      </p>
+      <form onsubmit="handleExecuteMedicalShare(event)">
+        <div class="form-group">
+          <label class="form-label">Select Hospital / Recipient Service</label>
+          <select id="share-hospital-select" class="form-select" required>
+            <option value="City Emergency Hospital & Trauma Center">City Emergency Hospital &amp; Trauma Center</option>
+            <option value="Metro Critical Care Unit">Metro Critical Care Unit</option>
+            <option value="Red Cross Emergency Medical Service">Red Cross Emergency Medical Service</option>
+          </select>
+        </div>
+        <div class="form-group" style="display: flex; align-items: flex-start; gap: 0.5rem; background: #F8F9FA; padding: 0.75rem; border-radius: 6px;">
+          <input type="checkbox" id="medical-consent-check" required style="margin-top: 3px;">
+          <label for="medical-consent-check" style="font-size: 0.82rem; color: var(--color-charcoal);">
+            I explicitly consent to securely sharing my confidential emergency medical details with the selected healthcare provider.
+          </label>
+        </div>
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="submit" class="btn-primary" style="background: var(--color-sos-red);">Send Profile to Hospital</button>
+          <button type="button" class="btn-primary" style="background: #95A5A6;" onclick="closeShareMedicalModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Leaflet JS for Maps -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+  <!-- Google Translate Element Script -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false
+      }, 'google_translate_element');
+    }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+  <!-- Data Files -->
+  <script src="js/helplines_data.js?v=2.5"></script>
+  <script src="js/safety_tips_data.js?v=2.5"></script>
+  <script src="js/chatbot_data.js?v=2.5"></script>
+
+  <!-- App Core Script -->
+  <script src="js/app.js?v=2.5"></script>
+</body>
+</html>
