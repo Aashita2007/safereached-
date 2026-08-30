@@ -58,9 +58,18 @@ def serve_index():
 
 @app.get("/{filename:path}")
 def serve_public_file(filename: str):
-    file_path = os.path.join(public_dir, filename)
-    if os.path.isfile(file_path):
-        return FileResponse(file_path)
+    f1 = os.path.join(public_dir, filename)
+    if os.path.isfile(f1):
+        return FileResponse(f1)
+    f2 = os.path.join(os.path.dirname(__file__), filename)
+    if os.path.isfile(f2):
+        return FileResponse(f2)
+    f3 = os.path.join(css_dir, os.path.basename(filename))
+    if filename.endswith(".css") and os.path.isfile(f3):
+        return FileResponse(f3)
+    f4 = os.path.join(js_dir, os.path.basename(filename))
+    if filename.endswith(".js") and os.path.isfile(f4):
+        return FileResponse(f4)
     return JSONResponse({"error": "File not found"}, status_code=404)
 
 if __name__ == "__main__":
