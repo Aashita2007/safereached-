@@ -1,6 +1,5 @@
 import os
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -28,48 +27,61 @@ app.add_middleware(
 # Include REST API Router
 app.include_router(api_router)
 
-# Mount Static Assets (CSS, JS, Static Files)
-public_dir = os.path.join(os.path.dirname(__file__), "public")
+# Define directories
+root_dir = os.path.dirname(__file__)
+public_dir = os.path.join(root_dir, "public")
 css_dir = os.path.join(public_dir, "css")
 js_dir = os.path.join(public_dir, "js")
 
-os.makedirs(public_dir, exist_ok=True)
-os.makedirs(css_dir, exist_ok=True)
-os.makedirs(js_dir, exist_ok=True)
-
-app.mount("/css", StaticFiles(directory=css_dir), name="css")
-app.mount("/js", StaticFiles(directory=js_dir), name="js")
-app.mount("/static", StaticFiles(directory=public_dir), name="static")
+def find_file_in_tree(target_name: str) -> str:
+    """Helper to locate any asset (style.css, app.js, images) anywhere in root or public folder."""
+    base_name = os.path.basename(target_name)
+    search_paths = [
+        os.path.join(public_dir, "css", base_name),
+        os.path.join(public_dir, "js", base_name),
+        os.path.join(public_dir, base_name),
+        os.path.join(root_dir, "css", base_name),
+        os.path.join(root_dir, "js", base_name),
+        os.path.join(root_dir, base_name),
+        os.path.join(public_dir, target_name),
+        os.path.join(root_dir, target_name),
+    ]
+    for p in search_paths:
+        if os.path.isfile(p):
+            return p
+    return None
 
 @app.get("/")
 def serve_index():
-    p1 = os.path.join(public_dir, "index.html")
-    if os.path.isfile(p1):
-        return FileResponse(p1)
-    p2 = os.path.join(os.path.dirname(__file__), "index.html")
-    if os.path.isfile(p2):
-        return FileResponse(p2)
-    for folder in [public_dir, os.path.dirname(__file__)]:
-        if os.path.exists(folder):
-            for fname in os.listdir(folder):
-                if fname.lower() == "index.html":
-                    return FileResponse(os.path.join(folder, fname))
+    index_path = find_file_in_tree("index.html")
+    if index_path:
+        return FileResponse(index_path)
     return JSONResponse({"status": "SafeReached Server Running", "docs": "/docs"})
 
+@app.get("/css/{filename:path}")
+def serve_css_assets(filename: str):
+    found = find_file_in_tree(filename)
+    if found:
+        return FileResponse(found, media_type="text/css")
+    return JSONResponse({"error": "CSS not found"}, status_code=404)
+
+@app.get("/js/{filename:path}")
+def serve_js_assets(filename: str):
+    found = find_file_in_tree(filename)
+    if found:
+        return FileResponse(found, media_type="application/javascript")
+    return JSONResponse({"error": "JS not found"}, status_code=404)
+
 @app.get("/{filename:path}")
-def serve_public_file(filename: str):
-    f1 = os.path.join(public_dir, filename)
-    if os.path.isfile(f1):
-        return FileResponse(f1)
-    f2 = os.path.join(os.path.dirname(__file__), filename)
-    if os.path.isfile(f2):
-        return FileResponse(f2)
-    f3 = os.path.join(css_dir, os.path.basename(filename))
-    if filename.endswith(".css") and os.path.isfile(f3):
-        return FileResponse(f3)
-    f4 = os.path.join(js_dir, os.path.basename(filename))
-    if filename.endswith(".js") and os.path.isfile(f4):
-        return FileResponse(f4)
+def serve_any_file(filename: str):
+    found = find_file_in_tree(filename)
+    if found:
+        media_type = None
+        if filename.endswith(".css"): media_type = "text/css"
+        elif filename.endswith(".js"): media_type = "application/javascript"
+        elif filename.endswith(".jpg") or filename.endswith(".jpeg"): media_type = "image/jpeg"
+        elif filename.endswith(".png"): media_type = "image/png"
+        return FileResponse(found, media_type=media_type)
     return JSONResponse({"error": "File not found"}, status_code=404)
 
 if __name__ == "__main__":
