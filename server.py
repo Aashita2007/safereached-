@@ -43,9 +43,17 @@ app.mount("/static", StaticFiles(directory=public_dir), name="static")
 
 @app.get("/")
 def serve_index():
-    index_file = os.path.join(public_dir, "index.html")
-    if os.path.exists(index_file):
-        return FileResponse(index_file)
+    p1 = os.path.join(public_dir, "index.html")
+    if os.path.isfile(p1):
+        return FileResponse(p1)
+    p2 = os.path.join(os.path.dirname(__file__), "index.html")
+    if os.path.isfile(p2):
+        return FileResponse(p2)
+    for folder in [public_dir, os.path.dirname(__file__)]:
+        if os.path.exists(folder):
+            for fname in os.listdir(folder):
+                if fname.lower() == "index.html":
+                    return FileResponse(os.path.join(folder, fname))
     return JSONResponse({"status": "SafeReached Server Running", "docs": "/docs"})
 
 @app.get("/{filename:path}")
